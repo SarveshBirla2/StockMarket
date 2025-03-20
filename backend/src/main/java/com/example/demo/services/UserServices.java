@@ -18,13 +18,12 @@ public class UserServices {
     private UserDao userDao;
 
 	public ResponseEntity<Map<String, String>> login(String name, String password) {
-		// TODO Auto-generated method stub
-		
 		
 		User obj=userDao.findByName(name);
 		Map<String, String> response = new HashMap<>();
         if (obj != null && obj.getPassword().equals(password)) {
             response.put("message", "Login successful");
+            response.put("user", String.valueOf(obj.getId()));
             return ResponseEntity.ok(response);
         }
 
@@ -104,4 +103,3 @@ public class UserServices {
 	
 	
 	
-

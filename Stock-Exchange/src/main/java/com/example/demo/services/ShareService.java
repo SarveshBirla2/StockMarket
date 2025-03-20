@@ -58,7 +58,7 @@ public class ShareService {
 
             // Generate a random price between minPrice and maxPrice
             Random random = new Random();
-            return minPrice + (maxPrice - minPrice) * random.nextDouble();
+            return minPrice + (maxPrice - minPrice) * random.nextDouble()*0.1;
         } else {
             throw new RuntimeException("Share with code " + code + " not found!");
         }
