@@ -34,6 +34,7 @@ public class UserServices {
 	public ResponseEntity<Map<String, String>> register(User user) {
 		 Map<String, String> response = new HashMap<>();
 	   try{
+		   System.out.println("1234");
 		   userDao.save(user);
 		   response.put("message", "Account created successfully");
 		    response.put("status", "success");
@@ -41,7 +42,7 @@ public class UserServices {
 
 	   }
 	   catch(Exception e){
-		   response.put("message", "Account already exists");
+		   response.put("message",e.getMessage());
 		    response.put("status", "fail");
 		    return ResponseEntity.status(401).body(response);
 
