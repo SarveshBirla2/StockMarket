@@ -14,6 +14,7 @@ public class TradingController {
 
     @PostMapping("/buy")
     public String buyShares(@RequestParam Integer userId, @RequestParam String shareCode, @RequestParam Integer quantity) {
+    	System.out.println("1234");
         return ts.buy(userId, shareCode, quantity);
     }
 

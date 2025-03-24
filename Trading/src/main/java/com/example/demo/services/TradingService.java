@@ -10,9 +10,9 @@ public class TradingService {
     @Autowired
     private RestTemplate restTemplate;
 
-    private static final String HOLDING_SERVICE_URL = "http://localhost:8082/holdings";
-    private static final String USER_SERVICE_URL = "http://localhost:8081/users";
-    private static final String SHARE_SERVICE_URL = "http://localhost:8083/shares";
+    private static final String HOLDING_SERVICE_URL = "http://localhost:8087/holdings";
+    private static final String USER_SERVICE_URL = "http://localhost:8083/api/auth";
+    private static final String SHARE_SERVICE_URL = "http://localhost:8082/shares";
 
     public String buy(Integer userId, String shareCode, Integer quantity) {
        
@@ -31,8 +31,12 @@ public class TradingService {
 
         
 //        restTemplate.put(USER_SERVICE_URL + "/" + userId + "/deduct-balance?amount=" + totalCost, null);
+ //       System.out.println(HOLDING_SERVICE_URL + "/buy?userId=" + userId + "&shareCode=" + shareCode + "&quantity=" + quantity + "&price=" + sharePrice);
 
-        restTemplate.put(HOLDING_SERVICE_URL + "/buy?userId=" + userId + "&shareCode=" + shareCode + "&quantity=" + quantity + "&price=" + sharePrice, null);
+        String url = HOLDING_SERVICE_URL + "/buy?userId=" + userId + "&shareCode=" + shareCode + "&quantity=" + quantity + "&price=" + sharePrice;
+
+        restTemplate.postForEntity(url, null, Void.class);
+
 
         return "Shares purchased successfully!";
     }
@@ -52,7 +56,9 @@ public class TradingService {
 //        restTemplate.put(USER_SERVICE_URL + "/" + userId + "/add-balance?amount=" + totalSaleValue, null);
 
     
-        restTemplate.put(HOLDING_SERVICE_URL + "/sell?userId=" + userId + "&shareCode=" + shareCode + "&quantity=" + quantity + "&price=" + sharePrice, null);
+        String url = HOLDING_SERVICE_URL + "/sell?userId=" + userId + "&shareCode=" + shareCode + "&quantity=" + quantity + "&price=" + sharePrice;
+
+        restTemplate.postForEntity(url, null, Void.class);
 
         return "Shares sold successfully!";
     }

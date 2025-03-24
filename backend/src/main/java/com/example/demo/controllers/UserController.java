@@ -8,6 +8,8 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,7 +21,6 @@ import com.example.demo.model.User;
 import com.example.demo.services.UserServices;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/api/auth")
 public class UserController {
 
@@ -58,10 +59,25 @@ public class UserController {
         return userService.forgetPassword(name, dob);
     }
     
-    @PutMapping("/updateAmount")
-    public ResponseEntity<Map<String, String>> transferMoney(@RequestBody Map<String, Object>requestData   ) {
-        String name = (String) requestData.get("name");
-        double updateAmount = Double.parseDouble(requestData.get("updateAmount").toString());
-        return userService.performTransaction(name, updateAmount );
+    @PostMapping("/updateAmount")
+    public ResponseEntity<Map<String, String>> updateBalance(@RequestBody Map<String, Object> requestData) {
+    	Integer userId = (Integer) requestData.get("userId"); 
+        double updateAmount;
+        
+        try {
+            updateAmount = Double.parseDouble(requestData.get("updateAmount").toString());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Invalid Amount Format"));
+        }
+
+        return userService.performTransaction(userId, updateAmount);
+    }
+
     
-}}
+    
+    @GetMapping("/{userId}/balance")
+    public ResponseEntity<Double> getBalance(@PathVariable Integer userId){
+    	return userService.getBalance(userId);
+    }
+    
+}

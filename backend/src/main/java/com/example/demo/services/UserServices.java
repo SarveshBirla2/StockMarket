@@ -3,6 +3,7 @@ package com.example.demo.services;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,90 +18,81 @@ public class UserServices {
     @Autowired
     private UserDao userDao;
 
-	public ResponseEntity<Map<String, String>> login(String name, String password) {
-		
-		User obj=userDao.findByName(name);
-		Map<String, String> response = new HashMap<>();
-        if (obj != null && obj.getPassword().equals(password)) {
-            response.put("message", "Login successful");
-            response.put("user", String.valueOf(obj.getId()));
-            return ResponseEntity.ok(response);
+    public ResponseEntity<Map<String, String>> login(String name, String password) {
+        Optional<User> userOpt = userDao.findByName(name);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(401).body(Map.of("message", "Invalid Account Number or Password"));
         }
 
-        response.put("message", "Invalid Account Number or Password");
-        return ResponseEntity.status(401).body(response); 
+        User obj = userOpt.get();
+        if (obj.getPassword().equals(password)) {
+            return ResponseEntity.ok(Map.of("message", "Login successful", "user", String.valueOf(obj.getId())));
+        }
+
+        return ResponseEntity.status(401).body(Map.of("message", "Invalid Account Number or Password"));
     }
 
-	public ResponseEntity<Map<String, String>> register(User user) {
-		 Map<String, String> response = new HashMap<>();
-	   try{
-		   System.out.println("1234");
-		   userDao.save(user);
-		   response.put("message", "Account created successfully");
-		    response.put("status", "success");
-		    return ResponseEntity.ok(response);
+    public ResponseEntity<Map<String, String>> register(User user) {
+        try {
+            userDao.save(user);
+            return ResponseEntity.ok(Map.of("message", "Account created successfully", "status", "success"));
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body(Map.of("message", e.getMessage(), "status", "fail"));
+        }
+    }
 
-	   }
-	   catch(Exception e){
-		   response.put("message",e.getMessage());
-		    response.put("status", "fail");
-		    return ResponseEntity.status(401).body(response);
+    public ResponseEntity<Map<String, String>> changePassword(String name, String oldPassword, String newPassword) {
+        Optional<User> userOpt = userDao.findByName(name);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(401).body(Map.of("message", "Invalid Account Number or Old Password"));
+        }
 
-	   }
+        User obj = userOpt.get();
+        if (obj.getPassword().equals(oldPassword)) {
+            obj.setPassword(newPassword);
+            userDao.save(obj);
+            return ResponseEntity.ok(Map.of("message", "Password updated successfully"));
+        }
 
-	   
-	    
+        return ResponseEntity.status(401).body(Map.of("message", "Invalid Account Number or Old Password"));
+    }
 
-	}
+    public ResponseEntity<Map<String, String>> forgetPassword(String name, Date dob) {
+        Optional<User> userOpt = userDao.findByName(name);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(401).body(Map.of("message", "Invalid Account Name or DOB"));
+        }
 
-	public ResponseEntity<Map<String, String>> changePassword(String name, String oldPassword, String newPassword) {
-		// TODO Auto-generated method stub
-		
-		User obj=userDao.findByName(name);
-		Map<String, String> response = new HashMap<>();
-		if(obj !=null && obj.getPassword().equals(oldPassword)) {
-				userDao.updatePassword(name, newPassword);
-			response.put("message","User Updated Successfully");
-			return ResponseEntity.ok(response);
-		}
-		response.put("message", "Invalid Account Number or Old Password");
-        return ResponseEntity.status(401).body(response);
-	}
+        User obj = userOpt.get();
+        if (obj.getDob().equals(dob)) {
+            return ResponseEntity.ok(Map.of("message", obj.getPassword()));
+        }
 
-	public ResponseEntity<Map<String, String>> forgetPassword(String name, Date dob) {
-		// TODO Auto-generated method stub
-		User obj=userDao.findByName(name);
-		
-	
-		Map<String, String> response = new HashMap<>();
-		if(obj !=null && obj.getDob().equals(dob)) {
-			String password =obj.getPassword();
-			response.put("message",password);
-			return ResponseEntity.ok(response);
-		}
-		response.put("message", "Invalid Account name or DOB");
-        return ResponseEntity.status(401).body(response);
-	}
+        return ResponseEntity.status(401).body(Map.of("message", "Invalid Account Name or DOB"));
+    }
 
-	public ResponseEntity<Map<String, String>> performTransaction(String name, Double updateAmount) {
-		// TODO Auto-generated method stub
-		User obj=userDao.findByName(name);
-		
-		Map<String, String> response = new HashMap<>();
-		
-		if(obj != null && obj.getBalance()+updateAmount>=0) {
-			
-			userDao.updateBalance(name,updateAmount+obj.getBalance());
-			response.put("message","User Balance Updated Successfully");
-			return ResponseEntity.ok(response);
-		}
-		response.put("message", "Invalid Account Name insufficent balance");
-        return ResponseEntity.status(401).body(response);
-		
-	}
-	}
-	
-	
-	
-	
-	
+    public ResponseEntity<Map<String, String>> performTransaction(Integer userId, double updateAmount) {
+    	Optional<User> userOpt = userDao.findById(userId);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "User not found"));
+        }
+        
+        User user = userOpt.get();
+        double newBalance = user.getBalance() + updateAmount;
+
+        if (newBalance < 0) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Insufficient balance"));
+        }
+
+        user.setBalance(newBalance);
+        userDao.save(user);
+
+        return ResponseEntity.ok(Map.of("message", "Balance updated successfully", "newBalance", String.valueOf(newBalance)));
+    }
+
+    public ResponseEntity<Double> getBalance(Integer userId) {
+        return userDao.findById(userId)
+                .map(user -> ResponseEntity.ok(user.getBalance()))
+                .orElse(ResponseEntity.notFound().build());
+    }
+}

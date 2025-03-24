@@ -1,5 +1,7 @@
 package com.example.demo.repos;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -10,7 +12,7 @@ import com.example.demo.model.User;
 import jakarta.transaction.Transactional;
 
 public interface UserDao extends JpaRepository<User ,Integer> {
-		User findByName(String name);
+	   Optional<User> findByName(String name);
 		
 		@Modifying
 	    @Transactional
