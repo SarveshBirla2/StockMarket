@@ -7,6 +7,7 @@ import com.example.demo.services.TradingService;
 
 @RestController
 @RequestMapping("/trade")
+@CrossOrigin("*")
 public class TradingController {
 
     @Autowired

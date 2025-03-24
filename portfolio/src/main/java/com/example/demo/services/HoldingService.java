@@ -48,7 +48,7 @@ public class HoldingService {
                 .findFirst()
                 .orElse(new Holding(userId, shareCode, price, 0));
 
-        holding.setPrice(price);
+        holding.setPrice(holding.getPrice()+price);
         holding.setQuantity(holding.getQuantity() + quantity);
         holdingRepo.save(holding);
         return "Shares bought successfully!";

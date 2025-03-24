@@ -10,6 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/holdings")
+@CrossOrigin("*")
 public class HoldingController {
 
     @Autowired

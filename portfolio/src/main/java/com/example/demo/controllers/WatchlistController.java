@@ -10,6 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/watchlist")
+@CrossOrigin("*")
 public class WatchlistController {
 
     @Autowired

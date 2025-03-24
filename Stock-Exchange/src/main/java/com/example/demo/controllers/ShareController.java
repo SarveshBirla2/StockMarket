@@ -12,6 +12,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/shares")
+@CrossOrigin("*")
 public class ShareController {
 
     @Autowired
