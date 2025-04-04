@@ -52,7 +52,7 @@ public class HoldingController {
             @PathVariable Integer userId,
             @PathVariable String shareCode) {
         Holding holding = holdingService.getHoldingByUserAndShare(userId, shareCode);
-        return ResponseEntity.ok(holding);
+        return ResponseEntity.ok(holding.getQuantity());
     }
 
     // Get all holdings

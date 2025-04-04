@@ -11,7 +11,6 @@ import org.springframework.web.reactive.config.CorsRegistry;
 
 @SpringBootApplication
 @EnableDiscoveryClient
-
 public class ApiGatewayApplication {
 
 	public static void main(String[] args) {

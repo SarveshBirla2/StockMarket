@@ -42,9 +42,9 @@ public class TradingService {
     }
 
     public String sell(Integer userId, String shareCode, Integer quantity) {
-
+        System.out.println(shareCode);
         Integer availableShares = restTemplate.getForObject(HOLDING_SERVICE_URL + "/" + userId + "/" + shareCode, Integer.class);
-
+        System.out.println(availableShares);
         if (availableShares < quantity) {
             return "Not enough shares to sell!";
         }

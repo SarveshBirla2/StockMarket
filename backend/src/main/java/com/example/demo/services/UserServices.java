@@ -2,6 +2,7 @@ package com.example.demo.services;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -95,4 +96,10 @@ public class UserServices {
                 .map(user -> ResponseEntity.ok(user.getBalance()))
                 .orElse(ResponseEntity.notFound().build());
     }
+    
+    
+    public List<User> getAllUsers() {
+        return userDao.findAll();
+    }
+
 }

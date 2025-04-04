@@ -22,7 +22,7 @@ public class HoldingService {
     
     
     private static final String USER_SERVICE_URL = "http://localhost:8083/api/auth/updateAmount";
-    
+    private static final String SHARE_SERVICE_URL = "http://localhost:8082/shares";
     // Get holdings for a specific user
     public List<Holding> getHoldingsByUserId(Integer userId) {
         return holdingRepo.findByUserId(userId);
@@ -42,13 +42,18 @@ public class HoldingService {
         if (!balanceUpdated) {
             return "Insufficient funds for purchase!";
         }
-
+        
+        boolean updateSharesinMarket = updateSoldShares(shareCode, quantity);
+        if(!updateSharesinMarket) {
+        	return "Error updating Sold Shares";
+        }
+        
         Holding holding = holdingRepo.findByUserId(userId).stream()
                 .filter(h -> h.getShareId().equals(shareCode))
                 .findFirst()
                 .orElse(new Holding(userId, shareCode, price, 0));
 
-        holding.setPrice(holding.getPrice()+price);
+        holding.setPrice(holding.getPrice()+price*quantity);
         holding.setQuantity(holding.getQuantity() + quantity);
         holdingRepo.save(holding);
         return "Shares bought successfully!";
@@ -68,9 +73,15 @@ public class HoldingService {
         if (holding.getQuantity() < quantity) {
             return "Not enough shares to sell. Available: " + holding.getQuantity();
         }
-
+       
+        boolean updateSharesinMarket = updateSoldShares(shareCode, -quantity);
+        if(!updateSharesinMarket) {
+        	return "Error updating Sold Shares";
+        }
+        
         double totalEarnings = price * quantity;
-
+        
+        
         holding.setQuantity(holding.getQuantity() - quantity);
         if (holding.getQuantity() == 0) {
             holdingRepo.delete(holding);
@@ -90,14 +101,30 @@ public class HoldingService {
             request.put("userId", userId); // Adjust if needed
             request.put("updateAmount", amount);
 
-            restTemplate.postForEntity(USER_SERVICE_URL, request, String.class);
+            restTemplate.put(USER_SERVICE_URL, request, String.class);
             return true;
         } catch (Exception e) {
         	System.out.println(e);
             return false;
         }
     }
+    
+    // Sell Shares
+    private boolean updateSoldShares(String shareCode, int quantity) {
+        try {
+            Map<String, Object> request = new HashMap<>();
+            request.put("shareCode", shareCode.toUpperCase()); // Ensuring uppercase code
+            request.put("quantity", quantity);
 
+            restTemplate.postForObject(SHARE_SERVICE_URL+"/sell", request, String.class);
+            return true;
+        } catch (Exception e) {
+            System.out.println("Error updating sold shares: " + e.getMessage());
+            return false;
+        }
+    }
+
+    
     // Get a specific holding for a user and share
     public Holding getHoldingByUserAndShare(Integer userId, String shareCode) {
         return holdingRepo.findByUserId(userId).stream()

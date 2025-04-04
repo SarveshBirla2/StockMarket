@@ -1,9 +1,14 @@
 spring:
   application:
     name: api-gateway
- 
+
   cloud:
     gateway:
+      forwarded:
+        enabled: true
+      httpclient:
+        websocket:
+          max-frame-payload-length: 9999999
       default-filters:
         - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
       globalcors:
@@ -12,7 +17,19 @@ spring:
             allowedOrigins: "*"
             allowedMethods: "*"
             allowedHeaders: "*"
+            exposed-headers:
+            - "Upgrade"
+            - "Connection"
       routes:
+        - id: websocket_route
+          uri: ws://localhost:8088
+          predicates:
+            - Path=/ws/**
+        - id: websocket_route_http
+          uri: lb://PRICES
+          predicates:
+          - Path=/prices/**
+
         - id: exchange
           uri: lb://STOCK-EXCHANGE
           predicates:
@@ -27,20 +44,21 @@ spring:
           uri: lb://PORTFOLIOS
           predicates:
             - Path=/watchlist/**
- 
+
         - id: registration
           uri: lb://REGISTER
           predicates:
             - Path=/api/auth/**
- 
+
         - id: trading
           uri: lb://TRADING
           predicates:
             - Path=/trade/**
- 
+
+               
 server:
   port: 8888
- 
+
 eureka:
   client:
     register-with-eureka: true
@@ -49,9 +67,9 @@ eureka:
       defaultZone: http://localhost:8761/eureka/
   instance:
     hostname: localhost
- 
+
 logging:
   level:
     org.springframework.cloud.gateway: DEBUG
- 
- 
+    org.springframework.web.socket: DEBUG
+    org.springframework.messaging: DEBUG

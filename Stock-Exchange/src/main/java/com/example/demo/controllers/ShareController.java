@@ -2,12 +2,14 @@ package com.example.demo.controllers;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.demo.models.Share;
 import com.example.demo.services.ShareService;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -54,4 +56,11 @@ public class ShareController {
         return shareService.getDynamicSharePrice(code);
     }
     
+    
+    @PostMapping("/sell")
+    public ResponseEntity<Map<String,Object>> sellShares(@RequestBody Map<String,Object> requestData){
+    	String shareCode = (String)requestData.get("shareCode");
+    	Integer quantity = (Integer)requestData.get("quantity");
+    	return shareService.sellShares(shareCode,quantity);
+    }
 }

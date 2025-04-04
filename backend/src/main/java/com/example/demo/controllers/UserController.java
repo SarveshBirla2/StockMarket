@@ -3,6 +3,7 @@ package com.example.demo.controllers;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,7 +61,7 @@ public class UserController {
         return userService.forgetPassword(name, dob);
     }
     
-    @PostMapping("/updateAmount")
+    @PutMapping("/updateAmount")
     public ResponseEntity<Map<String, String>> updateBalance(@RequestBody Map<String, Object> requestData) {
     	Integer userId = (Integer) requestData.get("userId"); 
         double updateAmount;
@@ -79,6 +80,11 @@ public class UserController {
     @GetMapping("/{userId}/balance")
     public ResponseEntity<Double> getBalance(@PathVariable Integer userId){
     	return userService.getBalance(userId);
+    }
+    
+    @GetMapping("/allUsers")
+      public ResponseEntity<List<User>> getAllUsers() {
+        return ResponseEntity.ok(userService.getAllUsers());
     }
     
 }

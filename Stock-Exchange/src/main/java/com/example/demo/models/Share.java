@@ -24,7 +24,9 @@ public class Share {
 
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
-
+    
+    @Column(name = "soldshares",nullable=false,columnDefinition = "INTEGER DEFAULT 0")
+    private Integer soldShares=0;
     // Constructors
     public Share() {}
 
@@ -34,6 +36,7 @@ public class Share {
         this.minPrice = minPrice;
         this.maxPrice = maxPrice;
         this.quantity = quantity;
+        this.soldShares = 0 ;
     }
 
     // Getters and Setters
@@ -76,4 +79,12 @@ public class Share {
     public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
+
+	public Integer getSoldShares() {
+		return soldShares;
+	}
+
+	public void setSoldShares(Integer soldShares) {
+		this.soldShares = soldShares;
+	}
 }
